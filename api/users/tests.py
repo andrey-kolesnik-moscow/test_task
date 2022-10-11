@@ -64,5 +64,31 @@ def test_user_flow(admin_client: 'APIClient', anon_client: 'APIClient'):
     ]
 
     """
+    # 1
+    ids = []
+    users_count = 20
+    for i in range(users_count):
+        users_data = {
+            'username': f'user_{i}',
+            'password': f'password_{i}',
+            'email': f'email_{i}@mail.ru',
+        }
+        response = admin_client.post('/api/v1/users/', data=users_data)
+        ids.append(response.data['id'])
+        assert response.status_code == 201, 'Cоздание пользователя не удалось'
 
-    ...
+    # 2
+    response = admin_client.get('/api/v1/users/')
+    assert response.status_code == 200
+    assert response.data[
+        'count'] == users_count, f'Количество пользователей в ответе от сервера не равно {users_count}'
+
+    for id in ids:
+        # 3
+        response = anon_client.get(f'/api/v1/users/{id}/')
+        assert response.status_code == 200, f'Не удается получить данные пользователя с id={id}'
+
+        # 4
+        response = admin_client.delete(f'/api/v1/users/{id}/')
+        assert response.status_code == 204, f'Не удается удалить пользователя с id={id}'
+    

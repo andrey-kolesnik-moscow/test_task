@@ -40,7 +40,8 @@ ADMIN_NAME = 'admin'
 @pytest.fixture
 def admin():
     # TODO нужно дополнить фикстуру что бы она возвращала вновь созданного пользователя в статусе admin
-    ...
+    user = User.objects.create_user(username=ADMIN_NAME, is_staff=True)
+    return user
 
 
 @pytest.fixture
